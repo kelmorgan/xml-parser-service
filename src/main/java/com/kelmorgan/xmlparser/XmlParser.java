@@ -472,6 +472,41 @@ public class XmlParser {
         return tagSet;
     }
 
+    public Set<Map<String, String>> getXMLData(String xmlInput, String tag) {
+
+        Document doc;
+        DocumentBuilder documentbuilder;
+
+        InputSource is = new InputSource();
+        is.setCharacterStream(new StringReader(xmlInput));
+        Set<Map<String, String>> tagSet = new HashSet<Map<String, String>>();
+        try {
+            documentbuilder = DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder();
+            doc = documentbuilder.parse(is);
+
+            NodeList list = doc.getElementsByTagName(tag);
+            for (int temp = 0; temp < list.getLength(); temp++) {
+                Map<String, String> tagMap = new LinkedHashMap<>();
+                Node nNode = list.item(temp);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) nNode;
+                    NodeList nodeList = eElement.getElementsByTagName("*");
+                    for (int i = 0; i < nodeList.getLength(); i++) {
+                        tagMap.put(
+                                nodeList.item(i).getNodeName(),
+                                getTagValues(nodeList.item(i).getNodeName(),
+                                        eElement));
+                    }
+                    tagSet.add(tagMap);
+                }
+            }
+        } catch (SAXException | IOException | ParserConfigurationException ex) {
+            ex.getStackTrace();
+        }
+        return tagSet;
+    }
+
     /**
      * This function returns Value of a particular tag.
      *
